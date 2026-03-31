@@ -1,0 +1,2175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FutureLens — See Your Future. Build It Today.</title>
+<meta name="description" content="AI-powered career planning for students. Get a personalized roadmap to your dream career based on your interests, budget, and goals.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #080A0E;
+  color: #F0EDE6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+img { display: block; max-width: 100%; }
+button { font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* ═══════════════════════════════════════════════
+   CSS VARIABLES
+═══════════════════════════════════════════════ */
+:root {
+  --gold:        #C9A84C;
+  --gold-light:  #E8C97A;
+  --gold-pale:   #F5E7C2;
+  --gold-dim:    rgba(201,168,76,0.12);
+  --gold-border: rgba(201,168,76,0.28);
+  --bg:          #080A0E;
+  --bg2:         #0D1017;
+  --bg3:         #121820;
+  --bg4:         #1A2030;
+  --text:        #F0EDE6;
+  --text2:       #9A9589;
+  --text3:       #555047;
+  --border:      rgba(240,237,230,0.07);
+  --border2:     rgba(240,237,230,0.13);
+  --border3:     rgba(240,237,230,0.20);
+  --green:       #4CAF82;
+  --green-dim:   rgba(76,175,130,0.12);
+  --red:         #E05C5C;
+  --blue:        #5B9BD5;
+  --blue-dim:    rgba(91,155,213,0.12);
+}
+
+/* ═══════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--text3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text2); }
+
+/* ═══════════════════════════════════════════════
+   SCREEN SYSTEM
+═══════════════════════════════════════════════ */
+.screen {
+  display: none;
+  min-height: 100vh;
+  flex-direction: column;
+}
+.screen.active {
+  display: flex;
+  animation: screenIn 0.55s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════
+   GLOBAL NAV BAR
+═══════════════════════════════════════════════ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px;
+  height: 64px;
+  background: rgba(8,10,14,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s;
+}
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.nav-logo em { color: var(--gold); font-style: normal; }
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-link {
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  letter-spacing: 0.04em; cursor: pointer;
+  transition: color 0.2s;
+}
+.nav-link:hover { color: var(--text); }
+.nav-cta {
+  padding: 9px 22px;
+  background: var(--gold); color: #080A0E;
+  font-size: 13px; font-weight: 600;
+  border-radius: 4px; cursor: pointer;
+  border: none; transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+.nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+/* ═══════════════════════════════════════════════
+   LANDING PAGE
+═══════════════════════════════════════════════ */
+#s-landing { background: var(--bg); position: relative; overflow: hidden; }
+
+/* Grid background */
+.land-grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+.land-grid::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, transparent 30%, var(--bg) 80%);
+}
+
+/* Animated orbs */
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); pointer-events: none;
+  animation: orbFloat 8s ease-in-out infinite;
+}
+.orb1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  animation-delay: 0s;
+}
+.orb2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(91,155,213,0.06) 0%, transparent 70%);
+  top: 200px; right: -80px;
+  animation-delay: -3s;
+}
+.orb3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(76,175,130,0.05) 0%, transparent 70%);
+  bottom: 100px; left: 30%;
+  animation-delay: -5s;
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0,0); }
+  33%       { transform: translate(30px,-20px); }
+  66%       { transform: translate(-20px,30px); }
+}
+
+/* Hero section */
+.land-hero {
+  position: relative; z-index: 2;
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 140px 24px 80px;
+}
+
+.land-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 16px; border-radius: 100px;
+  border: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  font-size: 11px; font-weight: 600;
+  color: var(--gold); letter-spacing: 0.12em; text-transform: uppercase;
+  margin-bottom: 36px;
+  animation: screenIn 0.6s 0.1s both;
+}
+.badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.75)} }
+
+.land-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(56px, 9vw, 112px);
+  font-weight: 700;
+  line-height: 0.93;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 10px;
+  animation: screenIn 0.7s 0.15s both;
+}
+.land-headline em {
+  font-style: italic; color: var(--gold);
+}
+.land-tagline {
+  font-size: clamp(15px, 2vw, 19px);
+  font-weight: 300; color: var(--text2);
+  letter-spacing: 0.06em;
+  margin: 24px 0 48px;
+  animation: screenIn 0.7s 0.2s both;
+}
+
+.land-clock {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px; letter-spacing: 0.1em;
+  color: var(--text3); margin-bottom: 44px;
+  animation: screenIn 0.7s 0.25s both;
+}
+.land-clock .time-val { color: var(--gold); }
+
+.land-cta-group {
+  display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap; justify-content: center;
+  margin-bottom: 80px;
+  animation: screenIn 0.7s 0.3s both;
+}
+.btn-hero {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 18px 40px;
+  background: var(--gold); color: #080A0E;
+  font-size: 15px; font-weight: 600;
+  border-radius: 4px; border: none; cursor: pointer;
+  letter-spacing: 0.02em; transition: all 0.25s;
+}
+.btn-hero:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,168,76,0.25); }
+.btn-hero svg { transition: transform 0.2s; }
+.btn-hero:hover svg { transform: translateX(4px); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 18px 32px;
+  background: transparent; color: var(--text2);
+  font-size: 15px; font-weight: 500;
+  border-radius: 4px; border: 1px solid var(--border2); cursor: pointer;
+  letter-spacing: 0.02em; transition: all 0.25s;
+}
+.btn-ghost:hover { border-color: var(--border3); color: var(--text); }
+
+/* Stats bar */
+.land-stats {
+  display: flex; align-items: stretch;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+  animation: screenIn 0.7s 0.35s both;
+}
+.land-stat {
+  flex: 1; text-align: center;
+  padding: 32px 24px;
+  border-right: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.land-stat:last-child { border-right: none; }
+.land-stat:hover { background: var(--bg2); }
+.land-stat-n {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px; font-weight: 700;
+  color: var(--text); letter-spacing: -0.02em;
+}
+.land-stat-n em { color: var(--gold); font-style: normal; }
+.land-stat-l {
+  font-size: 11px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px;
+}
+
+/* FEATURES SECTION */
+.section {
+  position: relative; z-index: 2;
+  padding: 120px 40px;
+  max-width: 1200px; margin: 0 auto; width: 100%;
+}
+.section-eyebrow {
+  font-size: 11px; font-weight: 600; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.14em;
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 600; line-height: 1.1;
+  color: var(--text); margin-bottom: 16px;
+}
+.section-sub {
+  font-size: 16px; color: var(--text2); line-height: 1.7;
+  max-width: 520px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+  margin-top: 64px;
+}
+.feature-card {
+  background: var(--bg2);
+  padding: 36px 32px;
+  transition: background 0.2s;
+  position: relative; overflow: hidden;
+}
+.feature-card:hover { background: var(--bg3); }
+.feature-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: transparent;
+  transition: background 0.2s;
+}
+.feature-card:hover::before { background: var(--gold); }
+.feature-icon {
+  width: 48px; height: 48px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 20px;
+}
+.feature-title {
+  font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 8px;
+}
+.feature-desc { font-size: 14px; color: var(--text2); line-height: 1.65; }
+
+/* HOW IT WORKS */
+.how-wrap {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 80px; align-items: center;
+  padding: 120px 40px;
+  max-width: 1200px; margin: 0 auto; width: 100%;
+}
+.how-steps { display: flex; flex-direction: column; gap: 0; }
+.how-step {
+  display: flex; gap: 20px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.how-step:first-child { padding-top: 0; }
+.how-step:last-child { border-bottom: none; }
+.how-step-n {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px; font-weight: 500; color: var(--text3);
+  flex-shrink: 0; transition: all 0.2s;
+}
+.how-step.active .how-step-n {
+  background: var(--gold-dim); border-color: var(--gold-border);
+  color: var(--gold);
+}
+.how-step-title {
+  font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 4px;
+  transition: color 0.2s;
+}
+.how-step.active .how-step-title { color: var(--text); }
+.how-step-desc { font-size: 14px; color: var(--text3); line-height: 1.6; }
+.how-step.active .how-step-desc { color: var(--text2); }
+
+.how-preview {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+  aspect-ratio: 4/3; position: relative;
+}
+.how-preview-inner {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 32px;
+}
+.preview-card {
+  width: 100%; background: var(--bg3);
+  border: 1px solid var(--border2); border-radius: 8px; padding: 24px;
+}
+.preview-title {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text3); margin-bottom: 16px;
+}
+.preview-bar {
+  height: 3px; background: var(--border);
+  border-radius: 3px; margin-bottom: 20px; overflow: hidden;
+}
+.preview-bar-fill {
+  height: 100%; background: var(--gold); border-radius: 3px;
+  width: 0%; transition: width 1.5s cubic-bezier(0.4,0,0.2,1);
+}
+.preview-chips {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.preview-chip {
+  padding: 6px 12px; border-radius: 100px;
+  background: var(--bg4); border: 1px solid var(--border2);
+  font-size: 12px; color: var(--text2);
+  transition: all 0.3s;
+}
+.preview-chip.lit { background: var(--gold-dim); border-color: var(--gold-border); color: var(--gold); }
+
+/* TESTIMONIALS */
+.testi-section {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 100px 40px;
+}
+.testi-inner { max-width: 1200px; margin: 0 auto; }
+.testi-grid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 24px;
+  margin-top: 56px;
+}
+.testi-card {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 28px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.testi-card:hover { border-color: var(--border2); transform: translateY(-4px); }
+.testi-quote {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px; font-style: italic;
+  color: var(--text2); line-height: 1.7; margin-bottom: 20px;
+}
+.testi-author { display: flex; align-items: center; gap: 12px; }
+.testi-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; flex-shrink: 0;
+}
+.testi-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.testi-role { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.testi-stars { color: var(--gold); font-size: 12px; margin-bottom: 14px; }
+
+/* FINAL CTA */
+.final-cta {
+  padding: 140px 40px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.final-cta-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%);
+}
+.final-cta-inner { position: relative; z-index: 1; }
+.final-cta-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 700; line-height: 1.05;
+  color: var(--text); margin-bottom: 20px;
+}
+.final-cta-sub { font-size: 17px; color: var(--text2); margin-bottom: 48px; }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 48px 40px;
+}
+.footer-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 24px;
+}
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; font-weight: 700; color: var(--text);
+}
+.footer-logo em { color: var(--gold); font-style: normal; }
+.footer-links { display: flex; gap: 28px; }
+.footer-link { font-size: 13px; color: var(--text3); cursor: pointer; transition: color 0.2s; }
+.footer-link:hover { color: var(--text2); }
+.footer-copy { font-size: 12px; color: var(--text3); }
+
+/* ═══════════════════════════════════════════════
+   ONBOARDING SHELL
+═══════════════════════════════════════════════ */
+.ob-nav {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(8,10,14,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.ob-logo { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--gold); }
+.ob-step-label { font-size: 12px; color: var(--text3); font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.progress-wrap { padding: 0; }
+.progress-track { height: 2px; background: var(--border); }
+.progress-fill { height: 100%; background: var(--gold); transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+
+.ob-shell {
+  flex: 1;
+  max-width: 660px; width: 100%;
+  margin: 0 auto;
+  padding: 56px 24px 100px;
+  display: flex; flex-direction: column;
+}
+
+.stage-eyebrow {
+  font-size: 11px; font-weight: 600; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px;
+}
+.stage-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(28px, 5vw, 42px);
+  font-weight: 600; line-height: 1.12;
+  color: var(--text); margin-bottom: 14px;
+}
+.stage-desc { font-size: 15px; color: var(--text2); line-height: 1.75; margin-bottom: 40px; }
+
+/* ── NAV BUTTONS ── */
+.nav-row {
+  display: flex; gap: 12px;
+  margin-top: auto; padding-top: 40px;
+}
+.btn-back {
+  padding: 15px 26px;
+  background: transparent; border: 1px solid var(--border2);
+  color: var(--text2); border-radius: 4px;
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-back:hover { border-color: var(--border3); color: var(--text); }
+.btn-next {
+  flex: 1; padding: 15px 26px;
+  background: var(--gold); color: #080A0E;
+  border: none; border-radius: 4px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s; letter-spacing: 0.02em;
+}
+.btn-next:hover { background: var(--gold-light); }
+.btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.btn-next:not(:disabled):hover { transform: translateY(-1px); }
+
+.err-msg {
+  color: var(--red); font-size: 13px;
+  margin-top: 10px; display: none;
+  padding: 10px 14px;
+  background: rgba(224,92,92,0.08);
+  border: 1px solid rgba(224,92,92,0.2);
+  border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════════
+   INTRO SCREEN
+═══════════════════════════════════════════════ */
+.intro-cards { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+.intro-card {
+  display: flex; gap: 18px; align-items: flex-start;
+  padding: 20px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.intro-card-n {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  color: var(--gold); font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+.intro-card-title { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+.intro-card-sub { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+/* ═══════════════════════════════════════════════
+   INTEREST CARDS
+═══════════════════════════════════════════════ */
+.interest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px; margin-bottom: 36px;
+}
+.int-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 20px 14px;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s; user-select: none;
+}
+.int-card:hover { background: var(--bg3); border-color: var(--border2); }
+.int-card.selected { background: var(--gold-dim); border-color: var(--gold); }
+.int-card-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+.int-card-label { font-size: 13px; font-weight: 500; color: var(--text2); transition: color 0.2s; }
+.int-card.selected .int-card-label { color: var(--gold); }
+
+/* ═══════════════════════════════════════════════
+   CAREER INPUT
+═══════════════════════════════════════════════ */
+.field-group { margin-bottom: 24px; }
+.field-label {
+  display: block; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text3); margin-bottom: 8px;
+}
+.field-input {
+  width: 100%; padding: 15px 18px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text);
+  font-size: 15px; outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.field-input:focus { border-color: var(--gold-border); background: var(--bg3); }
+.field-input::placeholder { color: var(--text3); }
+.field-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.field-hint { font-size: 12px; color: var(--text3); margin-top: 6px; }
+
+.chips-label {
+  font-size: 11px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.09em;
+  font-weight: 500; margin-bottom: 10px;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+.chip {
+  padding: 7px 14px; border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--bg2); color: var(--text2);
+  font-size: 13px; cursor: pointer; transition: all 0.15s;
+}
+.chip:hover { border-color: var(--gold-border); color: var(--gold); background: var(--gold-dim); }
+
+/* ═══════════════════════════════════════════════
+   SALARY SCREEN
+═══════════════════════════════════════════════ */
+.salary-display {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 8vw, 56px);
+  font-weight: 700; color: var(--gold);
+  text-align: center; margin: 20px 0;
+  letter-spacing: -0.02em;
+}
+.salary-period { font-size: 16px; color: var(--text3); font-weight: 400; font-family: 'DM Sans', sans-serif; }
+
+.range-wrap { position: relative; margin-bottom: 8px; }
+.range-input {
+  width: 100%; -webkit-appearance: none; appearance: none;
+  height: 3px; border-radius: 3px;
+  outline: none; cursor: pointer;
+  background: linear-gradient(to right, var(--gold) 0%, var(--gold) var(--pct, 20%), var(--border2) var(--pct, 20%));
+}
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--gold); border: 3px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--gold-border);
+  cursor: grab; transition: transform 0.1s;
+}
+.range-input::-webkit-slider-thumb:active { transform: scale(1.2); cursor: grabbing; }
+.range-input::-moz-range-thumb {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--gold); border: 3px solid var(--bg);
+  cursor: grab;
+}
+.range-scale {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--text3); margin-top: 10px;
+  font-family: 'DM Mono', monospace;
+}
+.salary-context {
+  margin-top: 28px; padding: 18px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.salary-context-title {
+  font-size: 11px; color: var(--gold); text-transform: uppercase;
+  letter-spacing: 0.1em; font-weight: 600; margin-bottom: 10px;
+}
+.salary-context-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.sal-ctx-item { text-align: center; }
+.sal-ctx-v { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--text); }
+.sal-ctx-l { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* ═══════════════════════════════════════════════
+   BUDGET SCREEN
+═══════════════════════════════════════════════ */
+.edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+.edu-card {
+  padding: 16px 18px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; transition: all 0.2s;
+}
+.edu-card:hover { border-color: var(--border2); background: var(--bg3); }
+.edu-card.selected { border-color: var(--gold); background: var(--gold-dim); }
+.edu-card-title { font-size: 14px; font-weight: 500; color: var(--text2); transition: color 0.2s; }
+.edu-card.selected .edu-card-title { color: var(--gold); }
+.edu-card-sub { font-size: 12px; color: var(--text3); margin-top: 3px; }
+
+.twin-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ═══════════════════════════════════════════════
+   SKILL SCREEN
+═══════════════════════════════════════════════ */
+.skill-opts { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+.skill-opt {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 20px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; transition: all 0.2s;
+}
+.skill-opt:hover { border-color: var(--border2); background: var(--bg3); }
+.skill-opt.selected { border-color: var(--gold); background: var(--gold-dim); }
+.skill-radio {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--border2); margin-top: 2px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.skill-opt.selected .skill-radio { border-color: var(--gold); background: var(--gold); }
+.skill-opt.selected .skill-radio::after {
+  content: ''; width: 6px; height: 6px; border-radius: 50%; background: #080A0E;
+}
+.skill-opt-label { font-size: 16px; font-weight: 500; color: var(--text2); margin-bottom: 3px; transition: color 0.2s; }
+.skill-opt.selected .skill-opt-label { color: var(--gold); }
+.skill-opt-desc { font-size: 13px; color: var(--text3); line-height: 1.5; }
+
+/* ═══════════════════════════════════════════════
+   LOADING SCREEN
+═══════════════════════════════════════════════ */
+#s-loading {
+  background: var(--bg);
+  align-items: center; justify-content: center;
+}
+.load-center {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 40px;
+  padding: 40px;
+}
+.load-ring-wrap { position: relative; width: 100px; height: 100px; }
+.load-ring {
+  width: 100px; height: 100px; border-radius: 50%;
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+}
+.load-ring::before {
+  content: ''; position: absolute; inset: -2px;
+  border-radius: 50%; border: 2px solid transparent;
+  border-top-color: var(--gold);
+  animation: spin 1.2s linear infinite;
+}
+.load-ring::after {
+  content: ''; position: absolute; inset: -6px;
+  border-radius: 50%; border: 1px solid transparent;
+  border-top-color: rgba(201,168,76,0.2);
+  animation: spin 2.4s linear infinite reverse;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-emblem {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px; font-weight: 700; color: var(--gold);
+}
+.load-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 600; color: var(--text); text-align: center;
+}
+.load-sub { font-size: 14px; color: var(--text3); text-align: center; margin-top: 4px; }
+.load-steps { display: flex; flex-direction: column; gap: 12px; min-width: 300px; }
+.load-step {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 14px; color: var(--text3);
+  transition: color 0.3s;
+}
+.load-step.active { color: var(--text); }
+.load-step.done { color: var(--green); }
+.load-step-icon {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--text3);
+  transition: all 0.3s;
+}
+.load-step.active .load-step-icon {
+  border-color: var(--gold-border); background: var(--gold-dim); color: var(--gold);
+  animation: pulse 1s infinite;
+}
+.load-step.done .load-step-icon {
+  border-color: rgba(76,175,130,0.3); background: var(--green-dim); color: var(--green);
+}
+
+/* ═══════════════════════════════════════════════
+   RESULTS PAGE
+═══════════════════════════════════════════════ */
+#s-results { background: var(--bg); }
+
+.results-header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 80px 40px 48px;
+  position: relative; overflow: hidden;
+}
+.results-header-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 50% 100% at 80% 50%, rgba(201,168,76,0.05) 0%, transparent 70%);
+}
+.results-header-inner {
+  max-width: 900px; margin: 0 auto;
+  position: relative; z-index: 1;
+  display: grid; grid-template-columns: 1fr auto;
+  gap: 40px; align-items: start;
+}
+.res-eyebrow {
+  font-size: 11px; font-weight: 600; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px;
+}
+.res-career-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 52px); font-weight: 700;
+  color: var(--text); line-height: 1.05; margin-bottom: 10px;
+}
+.res-headline { font-size: 16px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+.res-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.rtag {
+  padding: 5px 14px; border-radius: 100px;
+  font-size: 12px; font-weight: 500;
+}
+.rtag-gold { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+.rtag-dark { background: var(--bg3); color: var(--text2); border: 1px solid var(--border2); }
+.rtag-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(76,175,130,0.25); }
+
+.res-score-ring {
+  width: 100px; height: 100px; flex-shrink: 0;
+}
+
+.results-body {
+  max-width: 900px; margin: 0 auto;
+  padding: 56px 40px 100px;
+}
+.res-section { margin-bottom: 56px; }
+.res-section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 24px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.res-section-icon {
+  width: 32px; height: 32px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  border-radius: 6px; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.res-section-title {
+  font-size: 12px; font-weight: 600; color: var(--gold);
+  text-transform: uppercase; letter-spacing: 0.12em;
+}
+
+/* Metrics */
+.metrics-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.metric-card {
+  padding: 24px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 8px;
+  transition: border-color 0.2s;
+}
+.metric-card:hover { border-color: var(--border2); }
+.metric-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 8px; }
+.metric-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px; font-weight: 600; color: var(--text); margin-bottom: 4px;
+}
+.metric-note { font-size: 12px; color: var(--text2); }
+
+/* Skills */
+.skill-list { display: flex; flex-direction: column; gap: 10px; }
+.skill-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 6px;
+  transition: border-color 0.2s;
+}
+.skill-item:hover { border-color: var(--border2); }
+.skill-item-n {
+  width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  color: var(--gold); font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+.skill-item-name { flex: 1; font-size: 15px; font-weight: 500; color: var(--text); }
+.skill-badges { display: flex; gap: 6px; }
+.skill-badge {
+  font-size: 11px; padding: 3px 10px; border-radius: 100px;
+  font-weight: 500; border: 1px solid;
+}
+.badge-essential { color: var(--gold); border-color: var(--gold-border); background: var(--gold-dim); }
+.badge-important { color: var(--blue); border-color: rgba(91,155,213,0.3); background: var(--blue-dim); }
+.badge-useful { color: var(--text2); border-color: var(--border2); background: transparent; }
+.skill-time { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
+
+/* Roadmap */
+.roadmap { display: flex; flex-direction: column; }
+.road-step {
+  display: flex; gap: 20px;
+  padding-bottom: 32px; position: relative;
+}
+.road-step:not(:last-child)::before {
+  content: ''; position: absolute;
+  left: 19px; top: 40px; bottom: 0;
+  width: 1px; background: var(--border);
+}
+.road-dot {
+  width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  color: var(--gold); font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1; font-family: 'DM Mono', monospace;
+}
+.road-body { flex: 1; padding-top: 8px; }
+.road-timeline {
+  font-size: 11px; color: var(--gold); font-family: 'DM Mono', monospace;
+  text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 4px;
+}
+.road-title { font-size: 16px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+.road-desc { font-size: 14px; color: var(--text2); line-height: 1.7; }
+
+/* Budget & Resources */
+.resources-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.resource-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+.resource-card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text3); font-weight: 600;
+}
+.resource-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px; border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.resource-item:last-child { border-bottom: none; }
+.resource-name { color: var(--text2); flex: 1; }
+.resource-type { font-size: 11px; color: var(--text3); margin-right: 12px; }
+.resource-cost { font-weight: 500; color: var(--text); }
+.resource-cost.free { color: var(--green); }
+.budget-advice {
+  margin-top: 14px; padding: 18px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+  font-size: 14px; color: var(--text2); line-height: 1.75;
+}
+.budget-advice strong { color: var(--text); font-weight: 500; }
+
+/* Motivational note */
+.mot-card {
+  padding: 28px; margin-bottom: 56px;
+  border-left: 2px solid var(--gold);
+  background: var(--gold-dim); border-radius: 0 8px 8px 0;
+}
+.mot-label {
+  font-size: 11px; color: var(--gold); text-transform: uppercase;
+  letter-spacing: 0.1em; font-weight: 600; margin-bottom: 10px;
+}
+.mot-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-style: italic; font-weight: 500;
+  color: var(--text); line-height: 1.65;
+}
+
+/* Results actions */
+.res-actions {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  padding: 40px; background: var(--bg2);
+  border-top: 1px solid var(--border);
+}
+.btn-print {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; background: var(--gold); color: #080A0E;
+  border: none; border-radius: 4px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-print:hover { background: var(--gold-light); transform: translateY(-1px); }
+.btn-restart {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 28px; background: transparent; color: var(--text2);
+  border: 1px solid var(--border2); border-radius: 4px;
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-restart:hover { border-color: var(--border3); color: var(--text); }
+
+/* loading/error in results */
+.res-loading {
+  padding: 48px; text-align: center;
+  color: var(--text3); font-size: 15px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--bg2);
+}
+.res-error {
+  padding: 24px; color: var(--red);
+  background: rgba(224,92,92,0.07);
+  border: 1px solid rgba(224,92,92,0.2);
+  border-radius: 8px; font-size: 14px; line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .features-grid { grid-template-columns: 1fr; }
+  .how-wrap { grid-template-columns: 1fr; gap: 40px; }
+  .how-preview { display: none; }
+  .testi-grid { grid-template-columns: 1fr; }
+  .results-header-inner { grid-template-columns: 1fr; }
+  .res-score-ring { display: none; }
+  .metrics-row { grid-template-columns: 1fr 1fr; }
+  .resources-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+  .nav { padding: 0 20px; }
+  .section { padding: 72px 20px; }
+  .land-stats { flex-direction: column; }
+  .land-stat { border-right: none; border-bottom: 1px solid var(--border); }
+  .land-stat:last-child { border-bottom: none; }
+  .metrics-row { grid-template-columns: 1fr; }
+  .twin-inputs { grid-template-columns: 1fr; }
+  .edu-grid { grid-template-columns: 1fr; }
+  .interest-grid { grid-template-columns: repeat(2,1fr); }
+  .results-body { padding: 32px 20px 80px; }
+  .results-header { padding: 80px 20px 40px; }
+  .res-actions { padding: 24px 20px; flex-direction: column; }
+  footer { padding: 40px 20px; }
+  .footer-inner { flex-direction: column; gap: 16px; }
+  .final-cta { padding: 80px 20px; }
+  .testi-section { padding: 72px 20px; }
+}
+
+/* ═══════════════════════════════════════════════
+   PRINT STYLES
+═══════════════════════════════════════════════ */
+@media print {
+  body { background: white; color: black; }
+  .ob-nav, .nav, .res-actions, footer { display: none !important; }
+  .screen { min-height: auto !important; }
+  .results-header { background: white; color: black; border-color: #eee; }
+  .res-career-name, .res-eyebrow, .rtag-gold { color: #333 !important; }
+  .metric-card, .skill-item, .road-step, .resource-card { background: #f9f9f9 !important; border-color: #ddd !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ GLOBAL NAV ═══════════ -->
+<nav class="nav" id="main-nav">
+  <div class="nav-logo">Future<em>Lens</em></div>
+  <div class="nav-links">
+    <span class="nav-link" onclick="scrollToSection('features')">How It Works</span>
+    <span class="nav-link" onclick="scrollToSection('stories')">Success Stories</span>
+    <span class="nav-link" onclick="scrollToSection('about')">About</span>
+  </div>
+  <button class="nav-cta" onclick="goTo('s-intro')">Start Free →</button>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 1: LANDING
+═══════════════════════════════════════ -->
+<div id="s-landing" class="screen active">
+
+  <!-- Hero -->
+  <section class="land-hero">
+    <div class="land-grid"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <div class="land-badge"><span class="badge-dot"></span> AI-Powered Career Intelligence</div>
+
+    <h1 class="land-headline">Future<em>Lens</em></h1>
+    <p class="land-tagline">See your future. Build it today.</p>
+
+    <div class="land-clock">
+      <span id="clock-time">--:--:--</span> &nbsp;·&nbsp; <span id="clock-date">---</span>
+    </div>
+
+    <div class="land-cta-group">
+      <button class="btn-hero" onclick="goTo('s-intro')">
+        Start Your Future Plan
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <button class="btn-ghost" onclick="scrollToSection('features')">
+        See How It Works
+      </button>
+    </div>
+
+    <div class="land-stats">
+      <div class="land-stat">
+        <div class="land-stat-n">12<em>k+</em></div>
+        <div class="land-stat-l">Futures Mapped</div>
+      </div>
+      <div class="land-stat">
+        <div class="land-stat-n">94<em>%</em></div>
+        <div class="land-stat-l">Plan Accuracy</div>
+      </div>
+      <div class="land-stat">
+        <div class="land-stat-n">180<em>+</em></div>
+        <div class="land-stat-l">Career Paths</div>
+      </div>
+      <div class="land-stat">
+        <div class="land-stat-n">3<em>min</em></div>
+        <div class="land-stat-l">To Your Roadmap</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="section" id="features">
+    <div class="section-eyebrow">What Makes FutureLens Different</div>
+    <h2 class="section-title">Built for students who are serious about their future</h2>
+    <p class="section-sub">Not generic career advice. A real, personalized plan based on who you are, what you have, and where you want to go.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">AI-Personalized Roadmap</div>
+        <div class="feature-desc">Our AI analyzes your unique combination of interests, budget, and goals to generate a path that's built specifically for you — not a generic template.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💸</div>
+        <div class="feature-title">Budget-Aware Planning</div>
+        <div class="feature-desc">Whether you have AED 100 or AED 5,000 per month to invest in learning, we build a plan that maximizes every dirham. Free resources always included.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Salary Reality Check</div>
+        <div class="feature-desc">See realistic starting salaries, growth curves, and exactly how long it will take to reach your target income — grounded in real UAE & MENA market data.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-title">Skill Mastery Path</div>
+        <div class="feature-desc">Know exactly which 5 skills to focus on first, in what order, and how long each one takes. No guessing, no wasted time on the wrong things.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚀</div>
+        <div class="feature-title">Step-by-Step Actions</div>
+        <div class="feature-desc">A 4-phase roadmap that breaks down your entire journey — from day one to your first job — into clear, achievable milestones with real timelines.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Student-First Design</div>
+        <div class="feature-desc">Made for teenagers and young adults in education. We understand the constraints of being a student and plan around them, not over them.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <div class="how-wrap" id="how">
+    <div>
+      <div class="section-eyebrow">The Process</div>
+      <h2 class="section-title" style="margin-bottom:40px;">From blank page to clear path in minutes</h2>
+      <div class="how-steps" id="how-steps">
+        <div class="how-step active" onclick="setHowStep(0)">
+          <div class="how-step-n">01</div>
+          <div>
+            <div class="how-step-title">Tell us who you are</div>
+            <div class="how-step-desc">Your interests, current education, age, and skill level. Takes 2 minutes.</div>
+          </div>
+        </div>
+        <div class="how-step" onclick="setHowStep(1)">
+          <div class="how-step-n">02</div>
+          <div>
+            <div class="how-step-title">Define your ambition</div>
+            <div class="how-step-desc">Your target career and the salary you want to reach. Dream big — we'll make it real.</div>
+          </div>
+        </div>
+        <div class="how-step" onclick="setHowStep(2)">
+          <div class="how-step-n">03</div>
+          <div>
+            <div class="how-step-title">Set your constraints</div>
+            <div class="how-step-desc">Your monthly learning budget. This is what makes your plan actually actionable.</div>
+          </div>
+        </div>
+        <div class="how-step" onclick="setHowStep(3)">
+          <div class="how-step-n">04</div>
+          <div>
+            <div class="how-step-title">Get your full plan</div>
+            <div class="how-step-desc">A complete roadmap: skills, timeline, resources, salary projections, and step-by-step actions.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="how-preview" id="how-preview">
+      <div class="how-preview-inner">
+        <div class="preview-card">
+          <div class="preview-title" id="prev-title">Your Interests</div>
+          <div class="preview-bar"><div class="preview-bar-fill" id="prev-bar"></div></div>
+          <div class="preview-chips" id="prev-chips"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testi-section" id="stories">
+    <div class="testi-inner">
+      <div class="section-eyebrow">Success Stories</div>
+      <h2 class="section-title">Students who built their future</h2>
+      <div class="testi-grid">
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"I was completely lost about what to study after high school. FutureLens showed me a 2-year path to becoming a UI/UX designer that fits my exact budget. I'm now in my second semester of a design diploma."</div>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:rgba(201,168,76,0.15);color:var(--gold);">SA</div>
+            <div>
+              <div class="testi-name">Sara Al-Mansoori</div>
+              <div class="testi-role">Design Student, Dubai</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"The roadmap was so specific — it told me exactly which free courses to start with, which certifications actually matter, and what salary to expect in year one. That level of detail changed everything for me."</div>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:rgba(91,155,213,0.15);color:var(--blue);">KM</div>
+            <div>
+              <div class="testi-name">Khalid Mohammed</div>
+              <div class="testi-role">Junior Developer, Abu Dhabi</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <div class="testi-quote">"My parents thought gaming was just a hobby. FutureLens showed them — and me — a real career path in game design with a clear timeline and realistic salary. Now they're supporting my goals."</div>
+          <div class="testi-author">
+            <div class="testi-avatar" style="background:rgba(76,175,130,0.15);color:var(--green);">RJ</div>
+            <div>
+              <div class="testi-name">Rania Jouni</div>
+              <div class="testi-role">Game Design Student, Sharjah</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- About -->
+  <section class="section" id="about" style="padding-top:80px;padding-bottom:80px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;">
+      <div>
+        <div class="section-eyebrow">Our Mission</div>
+        <h2 class="section-title">Every student deserves a clear path</h2>
+        <p style="font-size:15px;color:var(--text2);line-height:1.8;margin-bottom:20px;">
+          Too many talented young people in the UAE and across the region are making major career decisions without the right information. They pick a university major because a parent suggested it, or avoid a career they love because they don't know how to get there.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.8;">
+          FutureLens exists to change that. We combine AI intelligence with real market data to give every student — regardless of their background or budget — the same quality of career guidance previously reserved for private consultants.
+        </p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="padding:24px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
+          <div style="font-size:28px;font-family:'Playfair Display',serif;font-weight:700;color:var(--text);margin-bottom:4px;">100% Free</div>
+          <div style="font-size:14px;color:var(--text2);">FutureLens is completely free to use. No subscriptions, no paywalls.</div>
+        </div>
+        <div style="padding:24px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
+          <div style="font-size:28px;font-family:'Playfair Display',serif;font-weight:700;color:var(--gold);margin-bottom:4px;">AI-Powered</div>
+          <div style="font-size:14px;color:var(--text2);">Powered by Claude, one of the world's most capable AI systems.</div>
+        </div>
+        <div style="padding:24px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;">
+          <div style="font-size:28px;font-family:'Playfair Display',serif;font-weight:700;color:var(--text);margin-bottom:4px;">UAE-First</div>
+          <div style="font-size:14px;color:var(--text2);">Built around UAE & MENA salaries, opportunities, and learning resources.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <div class="final-cta">
+    <div class="final-cta-bg"></div>
+    <div class="final-cta-inner">
+      <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.12em;color:var(--text3);text-transform:uppercase;margin-bottom:20px;">Your future starts here</div>
+      <h2 class="final-cta-title">Stop wondering.<br><em style="color:var(--gold);font-style:italic;">Start planning.</em></h2>
+      <p class="final-cta-sub">It takes 3 minutes. Your roadmap lasts a lifetime.</p>
+      <button class="btn-hero" onclick="goTo('s-intro')">
+        Get My Free Career Plan
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">Future<em>Lens</em></div>
+      <div class="footer-links">
+        <span class="footer-link" onclick="scrollToSection('features')">How It Works</span>
+        <span class="footer-link" onclick="scrollToSection('stories')">Stories</span>
+        <span class="footer-link" onclick="scrollToSection('about')">About</span>
+        <span class="footer-link" onclick="goTo('s-intro')">Start Free</span>
+      </div>
+      <div class="footer-copy">© 2025 FutureLens. All rights reserved.</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 2: INTRO
+═══════════════════════════════════════ -->
+<div id="s-intro" class="screen">
+  <div class="ob-nav">
+    <div class="ob-logo">FL</div>
+    <div class="ob-step-label">Getting Started</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:12%"></div></div></div>
+
+  <div class="ob-shell">
+    <div class="stage-eyebrow">Your journey begins</div>
+    <h2 class="stage-title">Map your path to the future</h2>
+    <p class="stage-desc">We'll ask you 6 focused questions to understand who you are, what you want, and what you have to work with. Then we'll build a real, actionable plan — powered by AI.</p>
+
+    <div class="intro-cards">
+      <div class="intro-card">
+        <div class="intro-card-n">1</div>
+        <div>
+          <div class="intro-card-title">Interests & Career Goal</div>
+          <div class="intro-card-sub">What excites you and where you want to go professionally</div>
+        </div>
+      </div>
+      <div class="intro-card">
+        <div class="intro-card-n">2</div>
+        <div>
+          <div class="intro-card-title">Salary Target & Budget</div>
+          <div class="intro-card-sub">Your financial ambition and what you can invest in learning each month</div>
+        </div>
+      </div>
+      <div class="intro-card">
+        <div class="intro-card-n">3</div>
+        <div>
+          <div class="intro-card-title">AI Analysis & Full Roadmap</div>
+          <div class="intro-card-sub">Your personalized career plan, skills list, timeline, and action steps</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:13px;color:var(--text2);line-height:1.7;">
+      <strong style="color:var(--text);font-weight:500;">Free &amp; Private.</strong> FutureLens is 100% free. Your information is used only to generate your plan and is never stored or shared.
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-landing')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-interests')">Let's Begin →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 3: INTERESTS
+═══════════════════════════════════════ -->
+<div id="s-interests" class="screen">
+  <div class="ob-nav">
+    <div class="ob-logo">FL</div>
+    <div class="ob-step-label">Step 1 of 6 — Interests</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:24%"></div></div></div>
+
+  <div class="ob-shell">
+    <div class="stage-eyebrow">Discover yourself</div>
+    <h2 class="stage-title">What genuinely excites you?</h2>
+    <p class="stage-desc">Pick everything that interests you — don't overthink it. Your natural curiosity is the best predictor of long-term success. Select at least one.</p>
+
+    <div class="interest-grid">
+      <div class="int-card" onclick="toggleInterest(this,'Technology')"><span class="int-card-icon">⚡</span><div class="int-card-label">Technology</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Business')"><span class="int-card-icon">📈</span><div class="int-card-label">Business</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Design')"><span class="int-card-icon">🎨</span><div class="int-card-label">Design</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Engineering')"><span class="int-card-icon">⚙️</span><div class="int-card-label">Engineering</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Medicine')"><span class="int-card-icon">🩺</span><div class="int-card-label">Medicine</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Gaming')"><span class="int-card-icon">🎮</span><div class="int-card-label">Gaming</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Finance')"><span class="int-card-icon">💹</span><div class="int-card-label">Finance</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Art & Media')"><span class="int-card-icon">🎬</span><div class="int-card-label">Art & Media</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Science')"><span class="int-card-icon">🔬</span><div class="int-card-label">Science</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Education')"><span class="int-card-icon">📚</span><div class="int-card-label">Education</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Law')"><span class="int-card-icon">⚖️</span><div class="int-card-label">Law</div></div>
+      <div class="int-card" onclick="toggleInterest(this,'Marketing')"><span class="int-card-icon">📣</span><div class="int-card-label">Marketing</div></div>
+    </div>
+
+    <div class="err-msg" id="int-err">Please select at least one interest to continue.</div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-intro')">← Back</button>
+      <button class="btn-next" onclick="nextInterests()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 4: CAREER
+═══════════════════════════════════════ -->
+<div id="s-career" class="screen">
+  <div class="ob-nav">
+    <div class="ob-logo">FL</div>
+    <div class="ob-step-label">Step 2 of 6 — Career Goal</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:38%"></div></div></div>
+
+  <div class="ob-shell">
+    <div class="stage-eyebrow">Define your direction</div>
+    <h2 class="stage-title">What career do you want?</h2>
+    <p class="stage-desc">Be as specific or broad as you like. You can type your own goal or choose from our smart suggestions — generated based on the interests you selected.</p>
+
+    <div class="field-group">
+      <label class="field-label">Your Target Career</label>
+      <input class="field-input" id="career-input" placeholder="e.g. Software Engineer, Game Designer, Doctor..." oninput="syncCareer(this.value)">
+      <div class="field-hint">Don't worry about being perfect — you can always explore multiple paths.</div>
+    </div>
+
+    <div class="chips-label">Smart suggestions based on your interests</div>
+    <div class="chips" id="career-chips"></div>
+
+    <div class="err-msg" id="career-err">Please enter or select a career goal to continue.</div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-interests')">← Back</button>
+      <button class="btn-next" onclick="nextCareer()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 5: SALARY
+═══════════════════════════════════════ -->
+<div id="s-salary" class="screen">
+  <div class="ob-nav">
+    <div class="ob-logo">FL</div>
+    <div class="ob-step-label">Step 3 of 6 — Salary Target</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:52%"></div></div></div>
+
+  <div class="ob-shell">
+    <div class="stage-eyebrow">Think realistically</div>
+    <h2 class="stage-title">What's your salary target?</h2>
+    <p class="stage-desc">Drag the slider to your desired monthly salary in AED. This helps us show you a realistic timeline to reach your financial goal and what it will take to get there.</p>
+
+    <div class="salary-display" id="salary-display">
+      AED 8,000 <span class="salary-period">/ month</span>
+    </div>
+
+    <div class="range-wrap">
+      <input type="range" class="range-input" id="salary-slider"
+        min="2000" max="60000" step="500" value="8000"
+        oninput="updateSalary(this.value)">
+    </div>
+    <div class="range-scale">
+      <span>AED 2k</span><span>AED 15k</span><span>AED 30k</span><span>AED 45k</span><span>AED 60k</span>
+    </div>
+
+    <div class="salary-context">
+      <div class="salary-context-title">UAE Market Context</div>
+      <div class="salary-context-grid" id="sal-ctx">
+        <div class="sal-ctx-item"><div class="sal-ctx-v">AED 6k</div><div class="sal-ctx-l">Entry Level</div></div>
+        <div class="sal-ctx-item"><div class="sal-ctx-v">AED 15k</div><div class="sal-ctx-l">Mid Level</div></div>
+        <div class="sal-ctx-item"><div class="sal-ctx-v">AED 35k+</div><div class="sal-ctx-l">Senior Level</div></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-career')">← Back</button>
+      <button class="btn-next" onclick="goTo('s-budget')">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 6: BUDGET & SITUATION
+═══════════════════════════════════════ -->
+<div id="s-budget" class="screen">
+  <div class="ob-nav">
+    <div class="ob-logo">FL</div>
+    <div class="ob-step-label">Step 4 of 6 — Your Situation</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:66%"></div></div></div>
+
+  <div class="ob-shell">
+    <div class="stage-eyebrow">Know your reality</div>
+    <h2 class="stage-title">Tell us about your situation</h2>
+    <p class="stage-desc">This is what makes your plan actually useful. Your budget and education level let us give you real, achievable recommendations — not generic advice.</p>
+
+    <div class="twin-inputs" style="margin-bottom:20px;">
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Monthly Budget (AED)</label>
+        <input class="field-input" id="budget-input" type="number" placeholder="e.g. 300" min="0" max="99999">
+        <div class="field-hint">For courses, books, subscriptions</div>
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Your Age</label>
+        <input class="field-input" id="age-input" type="number" placeholder="e.g. 17" min="12" max="30">
+        <div class="field-hint">Helps us tailor timelines</div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Current Education Level</label>
+      <div class="edu-grid" id="edu-grid">
+        <div class="edu-card" onclick="selectEdu(this,'Middle School')">
+          <div class="edu-card-title">Middle School</div>
+          <div class="edu-card-sub">Grade 6–9</div>
+        </div>
+        <div class="edu-card" onclick="selectEdu(this,'High School')">
+          <div class="edu-card-title">High School</div>
+          <div class="edu-card-sub">Grade 10–12</div>
+        </div>
+        <div class="edu-card" onclick="selectEdu(this,'University')">
+          <div class="edu-card-title">University</div>
+          <div class="edu-card-sub">Undergraduate / Graduate</div>
+        </div>
+        <div class="edu-card" onclick="selectEdu(this,'Self-Learning')">
+          <div class="edu-card-title">Self-Learning</div>
+          <div class="edu-card-sub">Outside formal education</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="err-msg" id="budget-err">Please fill in your monthly budget, age, and select your education level.</div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-salary')">← Back</button>
+      <button class="btn-next" onclick="nextBudget()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 7: SKILL LEVEL
+═══════════════════════════════════════ -->
+<div id="s-skill" class="screen">
+  <div class="ob-nav">
+    <div class="ob-logo">FL</div>
+    <div class="ob-step-label">Step 5 of 6 — Skill Level</div>
+  </div>
+  <div class="progress-wrap"><div class="progress-track"><div class="progress-fill" style="width:80%"></div></div></div>
+
+  <div class="ob-shell">
+    <div class="stage-eyebrow">Be honest with yourself</div>
+    <h2 class="stage-title">How would you rate your current skills?</h2>
+    <p class="stage-desc">In the field related to your target career — how would you describe your current level? There's no wrong answer. Honesty gives you a more accurate plan.</p>
+
+    <div class="skill-opts">
+      <div class="skill-opt" onclick="selectSkill(this,'Beginner')">
+        <div class="skill-radio"></div>
+        <div>
+          <div class="skill-opt-label">Beginner</div>
+          <div class="skill-opt-desc">Just starting out — little to no experience in this field. You're curious and ready to learn.</div>
+        </div>
+      </div>
+      <div class="skill-opt" onclick="selectSkill(this,'Intermediate')">
+        <div class="skill-radio"></div>
+        <div>
+          <div class="skill-opt-label">Intermediate</div>
+          <div class="skill-opt-desc">Some foundation — you've done courses, personal projects, or have basic practical knowledge.</div>
+        </div>
+      </div>
+      <div class="skill-opt" onclick="selectSkill(this,'Advanced')">
+        <div class="skill-radio"></div>
+        <div>
+          <div class="skill-opt-label">Advanced</div>
+          <div class="skill-opt-desc">Strong existing foundation — you're looking to specialize, level up, or change direction within the field.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="err-msg" id="skill-err">Please select your current skill level to continue.</div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goTo('s-budget')">← Back</button>
+      <button class="btn-next" onclick="nextSkill()">Analyze My Future →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 8: LOADING
+═══════════════════════════════════════ -->
+<div id="s-loading" class="screen">
+  <div class="load-center">
+    <div class="load-ring-wrap">
+      <div class="load-ring">
+        <div class="load-emblem">FL</div>
+      </div>
+    </div>
+    <div>
+      <div class="load-title">Analyzing Your Future</div>
+      <div class="load-sub">Building your personalized roadmap...</div>
+    </div>
+    <div class="load-steps">
+      <div class="load-step active" id="ls1">
+        <div class="load-step-icon">◈</div>
+        Processing your interests &amp; goals
+      </div>
+      <div class="load-step" id="ls2">
+        <div class="load-step-icon">◈</div>
+        Matching career trajectories
+      </div>
+      <div class="load-step" id="ls3">
+        <div class="load-step-icon">◈</div>
+        Calculating learning investment
+      </div>
+      <div class="load-step" id="ls4">
+        <div class="load-step-icon">◈</div>
+        Mapping your skill roadmap
+      </div>
+      <div class="load-step" id="ls5">
+        <div class="load-step-icon">◈</div>
+        Finalizing your action plan
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SCREEN 9: RESULTS
+═══════════════════════════════════════ -->
+<div id="s-results" class="screen">
+
+  <!-- Results Header -->
+  <div class="results-header">
+    <div class="results-header-bg"></div>
+    <div class="results-header-inner">
+      <div>
+        <div class="res-eyebrow">Your Personalized Career Plan</div>
+        <div class="res-career-name" id="res-career-name">—</div>
+        <div class="res-headline" id="res-headline">—</div>
+        <div class="res-tags" id="res-tags"></div>
+      </div>
+      <svg class="res-score-ring" id="res-score-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(240,237,230,0.07)" stroke-width="2"/>
+        <circle cx="50" cy="50" r="44" fill="none" stroke="#C9A84C" stroke-width="2"
+          stroke-dasharray="276.5" stroke-dashoffset="276.5"
+          stroke-linecap="round" transform="rotate(-90 50 50)"
+          id="score-circle" style="transition:stroke-dashoffset 1.5s cubic-bezier(0.4,0,0.2,1) 0.5s"/>
+        <text x="50" y="46" text-anchor="middle" font-family="'Playfair Display',serif" font-size="22" font-weight="700" fill="#F0EDE6" id="score-text">—</text>
+        <text x="50" y="62" text-anchor="middle" font-family="'DM Sans',sans-serif" font-size="9" fill="#555047" letter-spacing="1">READINESS</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Results Body -->
+  <div class="results-body" id="results-body">
+    <div class="res-loading">
+      <div style="font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;margin-bottom:8px;">BUILDING YOUR PLAN</div>
+      Generating your personalized roadmap...
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="res-actions" id="res-actions" style="display:none;">
+    <button class="btn-print" onclick="window.print()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Save My Plan
+    </button>
+    <button class="btn-restart" onclick="restart()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.45"/></svg>
+      Start Over
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════ -->
+<script>
+/* ── STATE ── */
+const state = {
+  interests: [], career: '',
+  salary: 8000, budget: '', age: '', education: '', skill: ''
+};
+
+/* ── CLOCK ── */
+function updateClock() {
+  const n = new Date();
+  const te = document.getElementById('clock-time');
+  const de = document.getElementById('clock-date');
+  if (te) te.textContent = n.toLocaleTimeString('en-GB');
+  if (de) de.textContent = n.toLocaleDateString('en-GB', { weekday:'short', year:'numeric', month:'short', day:'numeric' });
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ── SCREEN NAV ── */
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const el = document.getElementById(id);
+  el.style.display = 'flex';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+  });
+  const isLanding = id === 's-landing';
+  const nav = document.getElementById('main-nav');
+  nav.style.display = isLanding ? 'flex' : 'none';
+}
+
+/* ── SCROLL HELPER ── */
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ── INTEREST TOGGLE ── */
+function toggleInterest(el, val) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) {
+    if (!state.interests.includes(val)) state.interests.push(val);
+  } else {
+    state.interests = state.interests.filter(i => i !== val);
+  }
+}
+
+/* ── CAREER MAP ── */
+const careerMap = {
+  Technology: ['Software Engineer','Data Scientist','Cybersecurity Analyst','AI/ML Engineer','Cloud Architect','Mobile App Developer'],
+  Business: ['Entrepreneur','Product Manager','Business Analyst','Operations Manager','Strategy Consultant','Supply Chain Manager'],
+  Design: ['UX/UI Designer','Graphic Designer','Brand Designer','Motion Designer','Product Designer','Architect'],
+  Engineering: ['Mechanical Engineer','Civil Engineer','Electrical Engineer','Aerospace Engineer','Robotics Engineer','Chemical Engineer'],
+  Medicine: ['Doctor','Pharmacist','Surgeon','Medical Researcher','Dentist','Physiotherapist'],
+  Gaming: ['Game Developer','Game Designer','3D Artist','Esports Manager','Level Designer','Game QA Engineer'],
+  Finance: ['Financial Analyst','Investment Banker','Actuary','Accountant','Portfolio Manager','Financial Planner'],
+  'Art & Media': ['Film Director','Content Creator','Journalist','Photographer','Animator','Video Editor'],
+  Science: ['Physicist','Chemist','Biologist','Environmental Scientist','Data Analyst','Biotechnologist'],
+  Education: ['Teacher','Curriculum Developer','Education Technologist','University Lecturer','Corporate Trainer'],
+  Law: ['Lawyer','Legal Consultant','Compliance Officer','Judge','Paralegal'],
+  Marketing: ['Digital Marketer','Brand Strategist','SEO Specialist','Growth Hacker','Social Media Manager','CMO']
+};
+
+function buildCareerChips() {
+  const wrap = document.getElementById('career-chips');
+  const seen = new Set(); const suggestions = [];
+  state.interests.forEach(i => {
+    (careerMap[i] || []).forEach(c => {
+      if (!seen.has(c)) { seen.add(c); suggestions.push(c); }
+    });
+  });
+  wrap.innerHTML = suggestions.slice(0, 12).map(s =>
+    `<div class="chip" onclick="pickCareer('${s}')">${s}</div>`
+  ).join('');
+}
+
+function pickCareer(val) {
+  state.career = val;
+  document.getElementById('career-input').value = val;
+}
+function syncCareer(val) { state.career = val; }
+
+/* ── SALARY SLIDER ── */
+function updateSalary(v) {
+  const val = parseInt(v);
+  state.salary = val;
+  document.getElementById('salary-display').innerHTML =
+    `AED ${val.toLocaleString()} <span class="salary-period">/ month</span>`;
+  const slider = document.getElementById('salary-slider');
+  const min = parseInt(slider.min), max = parseInt(slider.max);
+  const pct = Math.round((val - min) / (max - min) * 100);
+  slider.style.setProperty('--pct', pct + '%');
+}
+updateSalary(8000);
+
+/* ── EDU SELECT ── */
+function selectEdu(el, val) {
+  document.querySelectorAll('#edu-grid .edu-card').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.education = val;
+}
+
+/* ── SKILL SELECT ── */
+function selectSkill(el, val) {
+  document.querySelectorAll('.skill-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.skill = val;
+}
+
+/* ── HOW IT WORKS PREVIEW ── */
+const howPreviews = [
+  { title: 'Your Interests', pct: 35, chips: ['Technology','Design','Gaming','Business','Science'] },
+  { title: 'Career Goal', pct: 60, chips: ['Software Engineer','Game Developer','AI Engineer','Product Manager'] },
+  { title: 'Monthly Budget', pct: 50, chips: ['AED 200/mo','Free resources','Online courses','Certifications'] },
+  { title: 'Your Full Plan', pct: 95, chips: ['2–3 Year Timeline','AED 18k salary','5 Key Skills','4-Phase Roadmap'] }
+];
+let howActive = 0;
+
+function setHowStep(i) {
+  howActive = i;
+  document.querySelectorAll('.how-step').forEach((s, j) => s.classList.toggle('active', j === i));
+  const p = howPreviews[i];
+  document.getElementById('prev-title').textContent = p.title;
+  const bar = document.getElementById('prev-bar');
+  bar.style.width = '0%';
+  setTimeout(() => { bar.style.width = p.pct + '%'; }, 100);
+  document.getElementById('prev-chips').innerHTML = p.chips.map((c, j) =>
+    `<div class="preview-chip" style="animation-delay:${j*0.08}s">${c}</div>`
+  ).join('');
+  setTimeout(() => {
+    document.querySelectorAll('.preview-chip').forEach((el, j) => {
+      setTimeout(() => el.classList.add('lit'), j * 120);
+    });
+  }, 400);
+}
+setHowStep(0);
+setInterval(() => { setHowStep((howActive + 1) % 4); }, 3500);
+
+/* ── VALIDATION & FLOW ── */
+function showErr(id, show) {
+  document.getElementById(id).style.display = show ? 'block' : 'none';
+}
+
+function nextInterests() {
+  if (state.interests.length === 0) { showErr('int-err', true); return; }
+  showErr('int-err', false);
+  buildCareerChips();
+  goTo('s-career');
+}
+
+function nextCareer() {
+  const v = document.getElementById('career-input').value.trim();
+  if (v) state.career = v;
+  if (!state.career) { showErr('career-err', true); return; }
+  showErr('career-err', false);
+  goTo('s-salary');
+}
+
+function nextBudget() {
+  state.budget = document.getElementById('budget-input').value;
+  state.age = document.getElementById('age-input').value;
+  if (!state.budget || !state.age || !state.education) {
+    showErr('budget-err', true); return;
+  }
+  showErr('budget-err', false);
+  goTo('s-skill');
+}
+
+function nextSkill() {
+  if (!state.skill) { showErr('skill-err', true); return; }
+  showErr('skill-err', false);
+  startAnalysis();
+}
+
+/* ── LOADING ANIMATION ── */
+function animateLoadSteps(cb) {
+  const ids = ['ls1','ls2','ls3','ls4','ls5'];
+  let i = 0;
+  function tick() {
+    if (i > 0) {
+      const prev = document.getElementById(ids[i-1]);
+      prev.classList.remove('active');
+      prev.classList.add('done');
+      prev.querySelector('.load-step-icon').textContent = '✓';
+    }
+    if (i < ids.length) {
+      document.getElementById(ids[i]).classList.add('active');
+      i++;
+      setTimeout(tick, 1900 + Math.random() * 400);
+    } else {
+      if (cb) cb();
+    }
+  }
+  tick();
+}
+
+/* ── API CALL ── */
+async function callAPI() {
+  const prompt = `You are FutureLens, an expert career advisor for young students in the UAE and MENA region. A student has submitted their profile. Generate a highly personalized, realistic, encouraging, and detailed career plan.
+
+STUDENT PROFILE:
+- Interests: ${state.interests.join(', ')}
+- Target Career: ${state.career}
+- Target Monthly Salary: AED ${state.salary.toLocaleString()}
+- Monthly Learning Budget: AED ${state.budget}
+- Age: ${state.age} years old
+- Current Education: ${state.education}
+- Skill Level: ${state.skill}
+
+INSTRUCTIONS:
+- Be specific to UAE/MENA market conditions, salaries, and opportunities
+- Consider that this is a student — be encouraging but grounded
+- If budget is very low (under AED 100), emphasize free resources heavily
+- Tailor timeline to their age and education level
+- Respond ONLY with valid JSON. No markdown, no backticks, no preamble.
+
+JSON FORMAT:
+{
+  "careerTitle": "refined, specific career title (string)",
+  "headline": "one powerful sentence about their path, max 15 words (string)",
+  "timeline": "X–Y years to reach target salary (string)",
+  "startingSalary": "realistic starting salary range in AED/month (string)",
+  "growthSalary": "salary at 3 years experience in AED/month (string)",
+  "peakSalary": "realistic peak salary in AED/month within 6–8 years (string)",
+  "readinessScore": number between 1 and 100,
+  "skills": [
+    { "name": "Skill name", "priority": "Essential", "timeToLearn": "e.g. 3 months", "why": "one sentence why this skill matters" }
+  ],
+  "roadmap": [
+    { "phase": "Phase name", "timeline": "e.g. Months 1–3", "title": "What to do", "description": "2–3 specific, actionable sentences describing exactly what to do and what to achieve" }
+  ],
+  "freeLearning": [
+    { "name": "Resource name", "type": "Platform|YouTube|Community|Website", "description": "what it teaches" }
+  ],
+  "paidLearning": [
+    { "name": "Resource name", "type": "Bootcamp|Course|Certification|Degree", "cost": "estimated AED cost", "roi": "why it's worth it" }
+  ],
+  "budgetBreakdown": {
+    "monthlyBudget": ${state.budget},
+    "allocation": [
+      { "category": "e.g. Online Courses", "amount": number, "notes": "what to spend it on" }
+    ]
+  },
+  "budgetAdvice": "2–3 sentences of specific advice on how to maximize their AED ${state.budget}/month budget",
+  "motivationalNote": "2 sentences of genuine, personalized encouragement for this specific student",
+  "quickWins": ["action they can take today", "action this week", "action this month"]
+}
+
+skills: exactly 5 items. Priority must be "Essential", "Important", or "Useful".
+roadmap: exactly 4 phases.
+freeLearning: 3–4 items.
+paidLearning: 2–3 items.
+budgetBreakdown.allocation: 2–4 items that add up to approximately ${state.budget}.
+quickWins: exactly 3 items.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2200,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  const data = await res.json();
+  const text = data.content.map(b => b.text || '').join('');
+  const clean = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+  return JSON.parse(clean);
+}
+
+/* ── START ANALYSIS ── */
+function startAnalysis() {
+  // Reset load steps
+  ['ls1','ls2','ls3','ls4','ls5'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.classList.remove('active', 'done');
+    el.querySelector('.load-step-icon').textContent = '◈';
+    if (i === 0) el.classList.add('active');
+  });
+  goTo('s-loading');
+
+  let apiDone = false, animDone = false, apiResult = null;
+
+  animateLoadSteps(() => {
+    animDone = true;
+    if (apiDone) showResults(apiResult);
+  });
+
+  callAPI().then(data => {
+    apiResult = data;
+    apiDone = true;
+    if (animDone) showResults(data);
+  }).catch(err => {
+    apiResult = { error: err.message };
+    apiDone = true;
+    if (animDone) showResults(apiResult);
+  });
+}
+
+/* ── RENDER RESULTS ── */
+function showResults(data) {
+  goTo('s-results');
+  document.getElementById('res-actions').style.display = 'flex';
+
+  if (data.error) {
+    document.getElementById('results-body').innerHTML = `
+      <div class="res-error">
+        <strong>Something went wrong generating your plan.</strong><br><br>
+        ${data.error}<br><br>
+        <button class="btn-restart" onclick="startAnalysis()" style="margin-top:8px;">Try Again</button>
+      </div>`;
+    return;
+  }
+
+  // Header
+  document.getElementById('res-career-name').textContent = data.careerTitle || state.career;
+  document.getElementById('res-headline').textContent = data.headline || '';
+
+  // Score ring animation
+  const score = Math.min(100, Math.max(0, data.readinessScore || 0));
+  const circ = Math.PI * 2 * 44;
+  const offset = circ - (circ * score / 100);
+  setTimeout(() => {
+    const circle = document.getElementById('score-circle');
+    if (circle) circle.style.strokeDashoffset = offset;
+    const txt = document.getElementById('score-text');
+    if (txt) txt.textContent = score + '%';
+  }, 300);
+
+  // Tags
+  const tagsEl = document.getElementById('res-tags');
+  tagsEl.innerHTML = [
+    `<span class="rtag rtag-gold">${data.timeline || '—'}</span>`,
+    `<span class="rtag rtag-dark">${state.skill} Level</span>`,
+    `<span class="rtag rtag-dark">${state.education}</span>`,
+    `<span class="rtag rtag-green">Score: ${score}%</span>`
+  ].join('');
+
+  // Skills HTML
+  const skillsHTML = (data.skills || []).map((s, i) => {
+    const badgeClass = s.priority === 'Essential' ? 'badge-essential' :
+                       s.priority === 'Important' ? 'badge-important' : 'badge-useful';
+    return `
+      <div class="skill-item">
+        <div class="skill-item-n">${i + 1}</div>
+        <div class="skill-item-name">${s.name}</div>
+        <div class="skill-badges">
+          <span class="skill-badge ${badgeClass}">${s.priority}</span>
+        </div>
+        <div class="skill-time">${s.timeToLearn}</div>
+      </div>`;
+  }).join('');
+
+  // Roadmap HTML
+  const roadmapHTML = (data.roadmap || []).map((r, i) => `
+    <div class="road-step">
+      <div class="road-dot">0${i+1}</div>
+      <div class="road-body">
+        <div class="road-timeline">${r.timeline || r.phase}</div>
+        <div class="road-title">${r.title}</div>
+        <div class="road-desc">${r.description}</div>
+      </div>
+    </div>`).join('');
+
+  // Resources HTML
+  const freeHTML = (data.freeLearning || []).map(r => `
+    <div class="resource-item">
+      <span class="resource-name">${r.name}</span>
+      <span class="resource-type">${r.type}</span>
+      <span class="resource-cost free">Free</span>
+    </div>`).join('');
+
+  const paidHTML = (data.paidLearning || []).map(r => `
+    <div class="resource-item">
+      <span class="resource-name">${r.name}</span>
+      <span class="resource-type">${r.type}</span>
+      <span class="resource-cost">${r.cost}</span>
+    </div>`).join('');
+
+  // Budget allocation
+  const budgetHTML = data.budgetBreakdown && data.budgetBreakdown.allocation ?
+    data.budgetBreakdown.allocation.map(a => `
+      <div class="resource-item">
+        <span class="resource-name">${a.category}</span>
+        <span class="resource-cost">AED ${a.amount}</span>
+      </div>`).join('') : '';
+
+  // Quick wins
+  const quickWinsHTML = data.quickWins ? `
+    <div class="res-section">
+      <div class="res-section-header">
+        <div class="res-section-icon">⚡</div>
+        <div class="res-section-title">Quick Wins — Start Now</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${data.quickWins.map((w, i) => {
+          const labels = ['Today','This Week','This Month'];
+          const colors = ['var(--gold)','var(--blue)','var(--green)'];
+          return `<div style="display:flex;align-items:flex-start;gap:14px;padding:14px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;">
+            <span style="font-size:11px;font-weight:600;color:${colors[i]};border:1px solid currentColor;padding:2px 8px;border-radius:100px;white-space:nowrap;opacity:0.8;margin-top:1px;">${labels[i]}</span>
+            <span style="font-size:14px;color:var(--text2);line-height:1.5;">${w}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : '';
+
+  // Motivational note
+  const motHTML = data.motivationalNote ? `
+    <div class="mot-card">
+      <div class="mot-label">A Note For You</div>
+      <div class="mot-text">"${data.motivationalNote}"</div>
+    </div>` : '';
+
+  // Salary progression
+  const salHTML = `
+    <div class="res-section">
+      <div class="res-section-header">
+        <div class="res-section-icon">📊</div>
+        <div class="res-section-title">Salary Progression</div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-label">Starting Salary</div>
+          <div class="metric-value">${data.startingSalary || '—'}</div>
+          <div class="metric-note">Year 1 expectation</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">3 Years In</div>
+          <div class="metric-value">${data.growthSalary || '—'}</div>
+          <div class="metric-note">With consistent growth</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Target Salary</div>
+          <div class="metric-value">${data.peakSalary || '—'}</div>
+          <div class="metric-note">${data.timeline || '6–8 year horizon'}</div>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('results-body').innerHTML = `
+    ${motHTML}
+
+    ${salHTML}
+
+    <div class="res-section">
+      <div class="res-section-header">
+        <div class="res-section-icon">🧠</div>
+        <div class="res-section-title">5 Skills to Master</div>
+      </div>
+      <div class="skill-list">${skillsHTML}</div>
+    </div>
+
+    <div class="res-section">
+      <div class="res-section-header">
+        <div class="res-section-icon">🗺️</div>
+        <div class="res-section-title">Your Roadmap</div>
+      </div>
+      <div class="roadmap">${roadmapHTML}</div>
+    </div>
+
+    <div class="res-section">
+      <div class="res-section-header">
+        <div class="res-section-icon">📚</div>
+        <div class="res-section-title">Learning Resources</div>
+      </div>
+      <div class="resources-grid">
+        <div class="resource-card">
+          <div class="resource-card-header">Free Resources</div>
+          ${freeHTML}
+        </div>
+        <div class="resource-card">
+          <div class="resource-card-header">Paid Resources</div>
+          ${paidHTML}
+        </div>
+      </div>
+    </div>
+
+    <div class="res-section">
+      <div class="res-section-header">
+        <div class="res-section-icon">💸</div>
+        <div class="res-section-title">Budget Plan — AED ${parseInt(state.budget).toLocaleString()}/month</div>
+      </div>
+      ${budgetHTML ? `<div class="resource-card" style="margin-bottom:14px;">${budgetHTML}</div>` : ''}
+      ${data.budgetAdvice ? `<div class="budget-advice">${data.budgetAdvice}</div>` : ''}
+    </div>
+
+    ${quickWinsHTML}
+  `;
+}
+
+/* ── RESTART ── */
+function restart() {
+  Object.assign(state, { interests:[], career:'', salary:8000, budget:'', age:'', education:'', skill:'' });
+  document.querySelectorAll('.int-card,.skill-opt,.edu-card').forEach(e => e.classList.remove('selected'));
+  document.getElementById('career-input').value = '';
+  document.getElementById('budget-input').value = '';
+  document.getElementById('age-input').value = '';
+  updateSalary(8000);
+  document.getElementById('salary-slider').value = 8000;
+  document.querySelectorAll('.err-msg').forEach(e => e.style.display = 'none');
+  document.getElementById('score-circle').style.strokeDashoffset = '276.5';
+  document.getElementById('score-text').textContent = '—';
+  document.getElementById('results-body').innerHTML = '<div class="res-loading">Preparing your results...</div>';
+  document.getElementById('res-actions').style.display = 'none';
+  goTo('s-landing');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+</script>
+</body>
+</html>
